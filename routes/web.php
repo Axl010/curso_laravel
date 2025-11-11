@@ -1,19 +1,14 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\DB;
 
-Route::get('/', function() {
-    return 'Bienvenido al Blog';
-})->name('home');
+Route::get('/posts', [PostController::class, 'index']);
 
-Route::get('/posts', function () {
-    return 'Lista de todos los posts';
-});
-
-Route::get('/posts/{id}', function ($id) {
-    return "Mostrando post ID: $id";
-})->where('id', '[0-9]+')->name('posts.show');
+Route::get('/posts/{id}', [PostController::class, 'show'])->where('id', '[0-9]+');
 
 // 4. Página "about"
 Route::get('/about', function () {
@@ -34,3 +29,23 @@ Route::prefix('contacto')->group(function () {
 // RUTA DE RECURSOS
 // Una sola línea crea 7 rutas:
 Route::resource('products', ProductController::class);
+//  URL	                Método      Controlador	    Descripción
+//  /products	        GET	        index()	        Listar todos
+//  /products/create    GET	        create()	    Formulario crear
+//  /products	        POST	    store()	        Guardar nuevo
+//  /products/{id}	    GET	        show()	        Mostrar uno
+//  /products/{id}/edit	GET	        edit()	        Formulario editar
+//  /products/{id}	    PUT/PATCH	update()	    Actualizar
+//  /products/{id}	    DELETE	    destroy()	    Eliminar
+
+Route::get('users', [UserController::class, 'index']);
+
+// Test de conexion BD
+Route::get('/test-db', function () {
+    try {
+        DB::connection()->getPdo();
+        return "Conexion a BD exitosa.";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
