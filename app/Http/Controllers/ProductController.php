@@ -4,21 +4,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
     /**
-     * Muestra una lista del recurso.
+     * Mostrar todos los productos (USANDO DB)
      */
     public function index()
     {
-        $products = [
-            ['id' => 1, 'name' => 'Laptop', 'price' => 1000],
-            ['id' => 2, 'name' => 'Mouse', 'price' => 25],
-            ['id' => 3, 'name' => 'Keyboard', 'price' => 45],
-        ];
+        $products = DB::table('products')->get();
 
-        return $products;
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
     }
 
     /**
@@ -34,43 +34,89 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // Acceder a datos del formulario
-        $name = $request->input('name');
-        $price = $request->input('price');
+        $productId = DB::table('products')->insertGetId([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'is_active' => $request->is_active,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
-        return "Proceso creado: $name - $$price";
+        $newProduct = DB::table('products')->where('id', $productId)->first();
+
+        return response()->json([
+            'succcess' => true,
+            'message' => 'Porducto creado exitosamente',
+            'data' => $newProduct
+        ], 201);
     }
 
     /**
-     * Muestra el recurso específico.
+     * Mostrar un producto específico (USANDO DB)
      */
     public function show($id)
     {
-        return "Mostrando el producto con ID: $id";
+        $product = DB::table('products')->where('id', $id)->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $product
+        ]);
     }
 
-    /**
-     * Muestra el formulario para editar el recurso.
-     */
-    public function edit($id)
-    {
-        return "Formulario para EDITAR el producto con ID: $id";
+    public function update(Request $request, $id) {
+        $affected = DB::table('products')
+            ->where('id', $id)
+            ->update([
+                'name' => $request->name,
+                'description' => $request->description,
+                'price' => $request->price,
+                'stock' => $request->stock,
+                'is_active' => $request->is_active,
+                'updated_at' => now()
+            ]);
+        
+        if ($affected === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado'
+            ], 404);
+        }
+
+        $updatedProduct = DB::table('products')->where('id', $id)->first();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto actualizado existosamente',
+            'dataa' => $updatedProduct
+        ]);
     }
 
-    /**
-     * Actualiza el recurso específico.
-     */
-    public function update(Request $request, $id) // CORREGIDO: Agregado Request $request
-    {
-        $name = $request->input('name');
-        return "Producto $id actualizado a: $name";
-    }
+    public function destroy($id) {
+        dump($id);
+        $affected = DB::table('products')
+            ->where('id', $id)
+            ->delete();
+        
+        if ($affected === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado'
+            ], 404);
+        }
 
-    /**
-     * Elimina el recurso específico.
-     */
-    public function destroy($id) // CORREGIDO: Cambiado string $id por $id
-    {
-        return "Producto $id eliminado";
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto eliminado exitosamente'
+        ]);
     }
 }

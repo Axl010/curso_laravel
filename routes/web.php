@@ -4,6 +4,8 @@ use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DBConditionsController;
+use App\Http\Controllers\DBCOnditionsController as ControllersDBCOnditionsController;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/posts', [PostController::class, 'index']);
@@ -28,7 +30,7 @@ Route::prefix('contacto')->group(function () {
 
 // RUTA DE RECURSOS
 // Una sola línea crea 7 rutas:
-Route::resource('products', ProductController::class);
+// Route::resource('products', ProductController::class);
 //  URL	                Método      Controlador	    Descripción
 //  /products	        GET	        index()	        Listar todos
 //  /products/create    GET	        create()	    Formulario crear
@@ -37,6 +39,12 @@ Route::resource('products', ProductController::class);
 //  /products/{id}/edit	GET	        edit()	        Formulario editar
 //  /products/{id}	    PUT/PATCH	update()	    Actualizar
 //  /products/{id}	    DELETE	    destroy()	    Eliminar
+
+Route::get('products', [ProductController::class, 'index']);
+Route::get('products/{id}', [ProductController::class, 'show']);
+Route::post('products', [ProductController::class, 'store']);
+Route::put('products/{id}', [ProductController::class, 'update']);
+Route::delete('products/{id}', [ProductController::class, 'destroy']);
 
 Route::get('users', [UserController::class, 'index']);
 
@@ -48,4 +56,15 @@ Route::get('/test-db', function () {
     } catch (\Exception $e) {
         return "Error: " . $e->getMessage();
     }
+});
+
+// Practica de condiciones con DB FACADES
+Route::prefix('db')->controller(ControllersDBCOnditionsController::class)->group(function() {
+    Route::get('/basic', 'whereBasic');
+    Route::get('/andOr', 'whereAndOr');
+    Route::get('/lista', 'where');
+    Route::get('/whereDate', 'whereDate');
+
+    // Ejercicio
+    Route::get('/practice', 'practiceDB');
 });
