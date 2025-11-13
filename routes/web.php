@@ -72,19 +72,15 @@ Route::prefix('db')->controller(ControllersDBCOnditionsController::class)->group
         DB::table('categories')->insert([
             [
                 'name' => 'Electrónicos',
-                'slug' => 'electronicos',
                 'description' => 'Productos electrónicos y tecnológicos',
                 'color' => '#3498db',
-                'position' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
-            'name' => 'Ropa',
-                'slug' => 'ropa',
+                'name' => 'Ropa',
                 'description' => 'Ropa y accesorios',
-                'color' => '#e74c3c', 
-                'position' => 2,
+                'color' => '#e74c3c',
                 'created_at' => now(),
                 'updated_at' => now() 
             ]
