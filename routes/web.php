@@ -2,11 +2,12 @@
 
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductControllerModel;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\DBConditionsController;
 use App\Http\Controllers\DBCOnditionsController as ControllersDBCOnditionsController;
 use Illuminate\Support\Facades\DB;
+use App\Models\Category;
+use App\Models\Product;
 
 Route::get('/posts', [PostController::class, 'index']);
 
@@ -40,11 +41,16 @@ Route::prefix('contacto')->group(function () {
 //  /products/{id}	    PUT/PATCH	update()	    Actualizar
 //  /products/{id}	    DELETE	    destroy()	    Eliminar
 
-Route::get('products', [ProductController::class, 'index']);
-Route::get('products/{id}', [ProductController::class, 'show']);
-Route::post('products', [ProductController::class, 'store']);
-Route::put('products/{id}', [ProductController::class, 'update']);
-Route::delete('products/{id}', [ProductController::class, 'destroy']);
+Route::controller(ProductControllerModel::class)->group(function () {
+    Route::get('/products', 'index');
+    Route::post('/products', 'store');
+    Route::get('/products/active', 'activeProducts');
+    Route::get('/products/low-stock', 'lowStock');
+    Route::get('/products/search', 'search');
+    Route::get('/products/{id}', 'show');
+    Route::put('/products/{id}', 'update');
+    Route::delete('/products/{id}', 'destroy');
+});
 
 Route::get('users', [UserController::class, 'index']);
 
@@ -68,24 +74,98 @@ Route::prefix('db')->controller(ControllersDBCOnditionsController::class)->group
     // Ejercicio
     Route::get('/practice', 'practiceDB');
 
-    Route::get('/seed-categories', function () {
-        DB::table('categories')->insert([
+    Route::get('/seed', function () {
+        // Crear categorías
+        $electronica = Category::create([
+            'name' => 'Electrónicos',
+            'description' => 'Productos electrónicos y tecnológicos',
+            'color' => '#3498db'
+        ]);
+
+        $ropa = Category::create([
+            'name' => 'Ropa',
+            'description' => 'Ropa y accesorios',
+            'color' => '#e74c3c'
+        ]);
+
+        $hogar = Category::create([
+            'name' => 'Hogar', 
+            'description' => 'Productos para el hogar',
+            'color' => '#2ecc71'
+        ]);
+
+        // Crear productos usando relaciones
+        $electronica->products()->createMany([
             [
-                'name' => 'Electrónicos',
-                'description' => 'Productos electrónicos y tecnológicos',
-                'color' => '#3498db',
-                'created_at' => now(),
-                'updated_at' => now()
+                'name' => 'iPhone 15 Pro',
+                'sku' => 'IPH15PRO-256',
+                'description' => 'iPhone 15 Pro 256GB Titanio Natural',
+                'price' => 1299.99,
+                'stock' => 25,
+                'is_active' => true,
+                'expires_at' => now()->addYears(2)
             ],
             [
-                'name' => 'Ropa',
-                'description' => 'Ropa y accesorios',
-                'color' => '#e74c3c',
-                'created_at' => now(),
-                'updated_at' => now() 
+                'name' => 'Samsung Galaxy S24',
+                'sku' => 'SGS24-128', 
+                'description' => 'Samsung Galaxy S24 128GB 5G',
+                'price' => 899.99,
+                'stock' => 18,
+                'is_active' => true,
+                'expires_at' => now()->addYears(2)
             ]
         ]);
 
-        return 'Categorías insertadas';
+        $ropa->products()->createMany([
+            [
+                'name' => 'Camiseta Básica Negra',
+                'sku' => 'CAM-BAS-NEG-M',
+                'description' => 'Camiseta de algodón 100% básica color negro',
+                'price' => 19.99,
+                'stock' => 50,
+                'is_active' => true,
+                'expires_at' => null
+            ],
+            [
+                'name' => 'Jeans Slim Fit',
+                'sku' => 'JEANS-SLIM-32',
+                'description' => 'Jeans slim fit color azul oscuro', 
+                'price' => 49.99,
+                'stock' => 22,
+                'is_active' => true,
+                'expires_at' => null
+            ]
+        ]);
+
+        $hogar->products()->createMany([
+            [
+                'name' => 'Juego de Sábanas Queen',
+                'sku' => 'SAB-QUEEN-AZUL',
+                'description' => 'Juego de sábanas de algodón tamaño queen color azul',
+                'price' => 59.99,
+                'stock' => 30,
+                'is_active' => true,
+                'expires_at' => null
+            ],
+            [
+                'name' => 'Set de Utensilios de Cocina',
+                'sku' => 'UTENS-KITCH-25',
+                'description' => 'Set de 25 piezas de utensilios de cocina antiadherentes',
+                'price' => 79.99,
+                'stock' => 8,
+                'is_active' => true,
+                'expires_at' => now()->addYears(5)
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Datos de prueba insertados usando Eloquent',
+            'data' => [
+                'categories' => Category::count(),
+                'products' => Product::count(),
+                'categories_with_products' => Category::withCount('products')->get()
+            ]
+        ]);
     });
 });
