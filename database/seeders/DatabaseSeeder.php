@@ -21,5 +21,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+            CategoryProductSeeder::class,
+        ]);
+
+        $this->command->info('¡La base de datos fue llenada exitosamente!');
     }
 }

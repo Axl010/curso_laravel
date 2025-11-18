@@ -18,7 +18,7 @@ class Product extends Model
         'expires_at'
     ];
 
-    protected $caSTS = [
+    protected $casts = [
         'price' => 'decimal:2',
         'stock' => 'integer',
         'is_active' => 'boolean',
@@ -45,8 +45,7 @@ class Product extends Model
          ->withPivot([           // Incluir columnas adicionales de la tabla pivote
              'is_primary', 
              'sort_order'
-         ])
-         ->using(CategoryProduct::class); // Modelo pivote personalizado (OPCIONAL)
+         ]); // Modelo pivote personalizado (OPCIONAL)
     }
 
      /**

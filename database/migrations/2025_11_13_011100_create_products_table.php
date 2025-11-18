@@ -37,7 +37,7 @@ return new class extends Migration
                   ->onDelete('set null'); // si se elimina categoría, poner NULL aquí
  
             // DATE
-            $table->date('expires_at'); // DATE
+            $table->date('expires_at')->nullable(); // DATE
             $table->datetime('published_ad'); // DATETIME
 
             // TIMESTAMPS
