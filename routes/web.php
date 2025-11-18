@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductControllerModel;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DBCOnditionsController as ControllersDBCOnditionsController;
+use App\Http\Controllers\ProductCategoryController;
 use Illuminate\Support\Facades\DB;
 use App\Models\Category;
 use App\Models\Product;
@@ -167,5 +168,10 @@ Route::prefix('db')->controller(ControllersDBCOnditionsController::class)->group
                 'categories_with_products' => Category::withCount('products')->get()
             ]
         ]);
+    });
+
+    Route::prefix('products')->group(function () {
+        // Gestión de categorías de productos
+        Route::post('/{productId}/categories/attach', [ProductCategoryController::class, 'attachCategories']);
     });
 });

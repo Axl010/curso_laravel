@@ -24,6 +24,23 @@ class ProductControllerModel extends Controller
         ]);
     }
 
+    
+    /**
+     * Mostrar un producto específico CON TODAS SUS RELACIONES
+     */
+    public function byCategory($categoryId) {
+        $products = Product::with('category')
+                    ->where('category_id', $categoryId)
+                    ->active()
+                    ->inStock()
+                    ->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
+
     /**
      * Muestra el formulario para crear un nuevo recurso.
      */

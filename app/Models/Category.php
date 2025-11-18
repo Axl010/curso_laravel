@@ -3,25 +3,47 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Category extends Model
 {
-    protected $fillable = [
-        'name',
-        'description',
-        'image',
-        'color',
-        'is_active',
-        'parent_id',
+    protected $fillable = ['name', 'description', 'color', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean'
     ];
 
-    /**
-     * RELACIÓN UNO A MUCHOS
-     * Una categoría tiene muchos productos
+     /**
+     * 🔗 RELACIÓN MUCHOS A MUCHOS CON PRODUCTOS
      */
-    public function products(): HasMany 
+    public function products(): BelongsToMany 
     {
-        return $this->hasMany(Product::class);
+        return $this->belongsToMany(Product::class, 'category_product')
+                    ->withTimestamps()
+                    ->withPivot(['is_primary', 'sort_order'])
+                    ->wherePivot('is_primary', true); // Solo productos principales en esta categoría
+    }
+
+    public function allProducts()
+    {
+        return $this->belongsToMany(Product::class, 'category_product')
+                    ->withTimestamps()
+                    ->withPivot(['is_primary', 'sort_order']);
+    }
+
+    /**
+     * Contar productos en la categoría
+     */
+    public function productsCount()
+    {
+        return $this->allProducts()->count();
+    }
+
+    /**
+     * Productos activos en la categoría
+     */
+    public function activeProducts()
+    {
+        return $this->products()->where('products.is_active', true);
     }
 }
