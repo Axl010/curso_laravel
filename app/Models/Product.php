@@ -93,4 +93,10 @@ class Product extends Model
     {
         return $query->where('expires_at', '<', now());
     }
+
+    // Relación Polimórfica
+    public function images()
+    {
+        return $this->morphMany(\App\Models\Image::class, 'imageable');
+    }
 }

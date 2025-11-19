@@ -46,4 +46,10 @@ class Category extends Model
     {
         return $this->products()->where('products.is_active', true);
     }
+
+    // Relación Polimórfica
+    public function images()
+    {
+        return $this->morphMany(\App\Models\Image::class, 'imageable');
+    }
 }

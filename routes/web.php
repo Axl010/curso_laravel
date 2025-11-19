@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductControllerModel;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DBCOnditionsController as ControllersDBCOnditionsController;
 use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductImageController;
 use Illuminate\Support\Facades\DB;
 use App\Models\Category;
 use App\Models\Product;
@@ -75,103 +76,14 @@ Route::prefix('db')->controller(ControllersDBCOnditionsController::class)->group
     // Ejercicio
     Route::get('/practice', 'practiceDB');
 
-    Route::get('/seed', function () {
-        // Crear categorías
-        $electronica = Category::create([
-            'name' => 'Electrónicos',
-            'description' => 'Productos electrónicos y tecnológicos',
-            'color' => '#3498db'
-        ]);
-
-        $ropa = Category::create([
-            'name' => 'Ropa',
-            'description' => 'Ropa y accesorios',
-            'color' => '#e74c3c'
-        ]);
-
-        $hogar = Category::create([
-            'name' => 'Hogar', 
-            'description' => 'Productos para el hogar',
-            'color' => '#2ecc71'
-        ]);
-
-        // Crear productos usando relaciones
-        $electronica->products()->createMany([
-            [
-                'name' => 'iPhone 15 Pro',
-                'sku' => 'IPH15PRO-256',
-                'description' => 'iPhone 15 Pro 256GB Titanio Natural',
-                'price' => 1299.99,
-                'stock' => 25,
-                'is_active' => true,
-                'expires_at' => now()->addYears(2)
-            ],
-            [
-                'name' => 'Samsung Galaxy S24',
-                'sku' => 'SGS24-128', 
-                'description' => 'Samsung Galaxy S24 128GB 5G',
-                'price' => 899.99,
-                'stock' => 18,
-                'is_active' => true,
-                'expires_at' => now()->addYears(2)
-            ]
-        ]);
-
-        $ropa->products()->createMany([
-            [
-                'name' => 'Camiseta Básica Negra',
-                'sku' => 'CAM-BAS-NEG-M',
-                'description' => 'Camiseta de algodón 100% básica color negro',
-                'price' => 19.99,
-                'stock' => 50,
-                'is_active' => true,
-                'expires_at' => null
-            ],
-            [
-                'name' => 'Jeans Slim Fit',
-                'sku' => 'JEANS-SLIM-32',
-                'description' => 'Jeans slim fit color azul oscuro', 
-                'price' => 49.99,
-                'stock' => 22,
-                'is_active' => true,
-                'expires_at' => null
-            ]
-        ]);
-
-        $hogar->products()->createMany([
-            [
-                'name' => 'Juego de Sábanas Queen',
-                'sku' => 'SAB-QUEEN-AZUL',
-                'description' => 'Juego de sábanas de algodón tamaño queen color azul',
-                'price' => 59.99,
-                'stock' => 30,
-                'is_active' => true,
-                'expires_at' => null
-            ],
-            [
-                'name' => 'Set de Utensilios de Cocina',
-                'sku' => 'UTENS-KITCH-25',
-                'description' => 'Set de 25 piezas de utensilios de cocina antiadherentes',
-                'price' => 79.99,
-                'stock' => 8,
-                'is_active' => true,
-                'expires_at' => now()->addYears(5)
-            ]
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Datos de prueba insertados usando Eloquent',
-            'data' => [
-                'categories' => Category::count(),
-                'products' => Product::count(),
-                'categories_with_products' => Category::withCount('products')->get()
-            ]
-        ]);
-    });
-
     Route::prefix('products')->group(function () {
         // Gestión de categorías de productos
         Route::post('/{productId}/categories/attach', [ProductCategoryController::class, 'attachCategories']);
     });
+});
+
+Route::prefix('products/{product}')->group(function () {
+    Route::get('/images', [ProductImageController::class, 'index']);
+    Route::post('/images', [ProductImageController::class, 'store']);
+    Route::get('/images/{image}', [ProductImageController::class, 'show']);
 });
