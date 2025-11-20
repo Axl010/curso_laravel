@@ -3,7 +3,8 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -52,25 +53,14 @@ class ProductControllerModel extends Controller
     /**
      * Almacena un recurso recién creado.
      */
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'sku' => 'required|string|max:50|unique:products,sku',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'is_active' => 'boolean',
-            'category_id' => 'nullable|exists:categories,id',
-            'expires_at' => 'nullable|date'
-        ]);
-
-        $newProduct = Product::create($validated);
+        $product = Product::create($request->validated());
 
         return response()->json([
             'succcess' => true,
             'message' => 'Porducto creado exitosamente',
-            'data' => $newProduct
+            'data' => $product
         ], 201);
     }
 
@@ -94,7 +84,7 @@ class ProductControllerModel extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateProductRequest $request, $id)
     {
         $product = Product::find($id);
 
@@ -105,24 +95,7 @@ class ProductControllerModel extends Controller
             ], 404);
         }
 
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'sku' => [
-            'sometimes',
-            'required',
-            'string',
-            'max:50',
-            Rule::unique('products')->ignore($product->id)
-            ],
-            'description' => 'nullable|string',
-            'price' => 'sometimes|required|numeric|min:0',
-            'stock' => 'sometimes|required|integer|min:0',
-            'is_active' => 'sometimes|boolean',
-            'category_id' => 'nullable|exists:categories,id',
-            'expires_at' => 'nullable|date'
-        ]);
-
-        $product->update($validated);
+        $product->update($request->validated());
 
         return response()->json([
             'success' => true,

@@ -79,7 +79,7 @@ class Product extends Model
     /**
      * Sincronizar categorías (método muy útil)
      */
-    public function syncCateogries(array $categoryIds, array $pivotData = [])
+    public function syncCategories(array $categoryIds, array $pivotData = [])
     {
         return $this->categories()->syncWithPivotValues($categoryIds, $pivotData);
     }
