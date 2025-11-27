@@ -47,7 +47,7 @@ Route::controller(ProductControllerModel::class)->group(function () {
     Route::get('/products', 'index');
     Route::post('/products', 'store');
     Route::get('/products/active', 'activeProducts');
-    Route::get('/products/low-stock', 'lowStock');
+    Route::get('/products/low-stock/{quote}', 'lowStock')->middleware('lowStock');
     Route::get('/products/search', 'search');
     Route::get('/products/{id}', 'show');
     Route::put('/products/{id}', 'update');

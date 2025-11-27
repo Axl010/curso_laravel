@@ -122,4 +122,19 @@ class ProductControllerModel extends Controller
             'message' => 'Producto eliminado exitosamente'
         ]);
     }
+
+    public function lowStock(Request $request)
+    {
+        $minStock = $request->min_stock ?? 5;
+
+        $products = Product::where('stock', '<=', $minStock)
+                            ->orderBy('stock', 'asc')
+                            ->get();
+
+        return response()->json([
+            'success' => true,
+            'min_stock' => $minStock,
+            'data' => $products
+        ]);
+    }
 }
