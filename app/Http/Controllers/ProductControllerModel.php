@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -17,7 +18,7 @@ class ProductControllerModel extends Controller
      */
     public function index()
     {
-        $products = Product::with(['category'])->active()->orderBy('created_at','desc')->get();
+        $products = Product::with(['category'])->orderBy('created_at','desc')->get();
 
         return response()->json([
             'success' => true,
@@ -56,6 +57,8 @@ class ProductControllerModel extends Controller
     public function store(StoreProductRequest $request)
     {
         $product = Product::create($request->validated());
+
+        Log::info('Producto creado', ['id' => $product->id, 'sku' => $product->sku]);
 
         return response()->json([
             'succcess' => true,
