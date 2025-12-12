@@ -143,9 +143,12 @@
                         <p class="font-medium">Admin User</p>
                         <p class="text-sm text-gray-400">Administrador</p>
                     </div>
-                    <a href="/logout" class="ml-auto text-gray-400 hover:text-white">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}" class="ml-auto">
+                        @csrf
+                        <button type="submit" class="text-gray-400 hover:text-white focus:outline-none">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>
