@@ -8,8 +8,6 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class ProductControllerModel extends Controller
 {
@@ -18,6 +16,8 @@ class ProductControllerModel extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Product::class);
+
         $products = Product::with(['category'])->orderBy('created_at','desc')->get();
 
         return response()->json([
@@ -31,6 +31,7 @@ class ProductControllerModel extends Controller
      * Mostrar un producto específico CON TODAS SUS RELACIONES
      */
     public function byCategory($categoryId) {
+        $this->authorize('viewAny', Product::class);
         $products = Product::with('category')
                     ->where('category_id', $categoryId)
                     ->active()
@@ -48,6 +49,7 @@ class ProductControllerModel extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Product::class);
         return "Formulario para CREAR un nuevo producto";
     }
 
@@ -56,6 +58,8 @@ class ProductControllerModel extends Controller
      */
     public function store(StoreProductRequest $request)
     {
+        $this->authorize('create', Product::class);
+
         $product = Product::create($request->validated());
 
         Log::info('Producto creado', ['id' => $product->id, 'sku' => $product->sku]);
@@ -72,14 +76,8 @@ class ProductControllerModel extends Controller
      */
     public function show($id)
     {
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Producto no encontrado'
-            ], 404);
-        }
+        $product = Product::findOrFail($id);
+        $this->authorize('view', $product);
 
         return response()->json([
             'success' => true,
@@ -89,15 +87,8 @@ class ProductControllerModel extends Controller
 
     public function update(UpdateProductRequest $request, $id)
     {
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Producto no encontrado'
-            ], 404);
-        }
-
+        $product = Product::findOrFail($id);
+        $this->authorize('update', $product);
         $product->update($request->validated());
 
         return response()->json([
@@ -109,15 +100,8 @@ class ProductControllerModel extends Controller
 
     public function destroy($id) 
     {
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Producto no encontrado'
-            ], 404);
-        }
-
+        $product = Product::findOrFail($id);
+        $this->authorize('delete', $product);
         $product->delete();
 
         return response()->json([
@@ -128,8 +112,8 @@ class ProductControllerModel extends Controller
 
     public function lowStock(Request $request)
     {
+        $this->authorize('viewAny', Product::class);
         $minStock = $request->min_stock ?? 5;
-
         $products = Product::where('stock', '<=', $minStock)
                             ->orderBy('stock', 'asc')
                             ->get();
