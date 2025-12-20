@@ -57,14 +57,14 @@ Route::middleware('auth')->group(function () {
     //  /products/{id}	    DELETE	    destroy()	    Eliminar
 
     Route::controller(ProductControllerModel::class)->group(function () {
-        Route::get('/products', 'index');
-        Route::post('/products', 'store');
+        Route::get('/products', 'index')->middleware('permission:product view');
+        Route::post('/products', 'store')->middleware('permission:product create');
         Route::get('/products/active', 'activeProducts');
         Route::get('/products/low-stock/{quote}', 'lowStock')->middleware('lowStock');
         Route::get('/products/search', 'search');
-        Route::get('/products/{id}', 'show');
-        Route::put('/products/{id}', 'update');
-        Route::delete('/products/{id}', 'destroy');
+        Route::get('/products/{id}', 'show')->middleware('permission:product view');
+        Route::put('/products/{id}', 'update')->middleware('permission:product update');
+        Route::delete('/products/{id}', 'destroy')->middleware('permission:product delete');
     });
 
     Route::get('users', [UserController::class, 'index']);
